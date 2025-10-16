@@ -166,10 +166,10 @@ class ChatApp {
         Object.assign(messageBubble.style, {
             background: isUser ? '#000000' : '#ffffff',
             color: isUser ? '#ffffff' : '#000000',
-            padding: '18px 22px',
-            borderRadius: isUser ? '24px 24px 4px 24px' : '24px 24px 24px 4px',
+            padding: window.innerWidth < 640 ? '14px 18px' : '18px 22px',
+            borderRadius: isUser ? '20px 20px 4px 20px' : '20px 20px 20px 4px',
             border: '2px solid ' + (isUser ? '#000000' : '#e5e5e5'),
-            maxWidth: isUser ? '85%' : '90%',
+            maxWidth: window.innerWidth < 640 ? '90%' : (isUser ? '85%' : '90%'),
             alignSelf: isUser ? 'flex-end' : 'flex-start',
             transition: 'transform 0.2s ease'
         });
@@ -185,8 +185,8 @@ class ChatApp {
         
         const messageText = document.createElement('p');
         Object.assign(messageText.style, {
-            fontSize: '15px',
-            lineHeight: '1.7',
+            fontSize: window.innerWidth < 640 ? '14px' : '15px',
+            lineHeight: '1.6',
             whiteSpace: 'pre-wrap',
             wordBreak: 'break-word',
             margin: '0'
@@ -229,8 +229,8 @@ class ChatApp {
 
     async generateBotResponse(userMessage) {
         try {
-            // Call the backend API
-            const response = await fetch('http://localhost:3000/api/chat/message', {
+            // Call the Latenode webhook API
+            const response = await fetch('https://webhook.latenode.com/1150/prod/bge/codebook/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -252,7 +252,7 @@ class ChatApp {
             console.error('Error fetching bot response:', error);
             
             // Fallback message if API fails
-            const errorMessage = `I apologize, but I'm having trouble connecting to the server. Please make sure the backend is running at http://localhost:3000\n\nError: ${error.message}`;
+            const errorMessage = `I apologize, but I'm having trouble connecting to the server. Please try again later.\n\nError: ${error.message}`;
             this.addMessage('bot', errorMessage);
         }
     }
@@ -293,15 +293,15 @@ class ChatApp {
         Object.assign(loaderBubble.style, {
             background: '#ffffff',
             color: '#000000',
-            padding: '15px 20px',
-            borderRadius: '24px 24px 24px 4px',
+            padding: window.innerWidth < 640 ? '12px 16px' : '15px 20px',
+            borderRadius: '20px 20px 20px 4px',
             border: '2px solid #e5e5e5',
             maxWidth: '90%',
             alignSelf: 'flex-start',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            minHeight: '50px'
+            minHeight: window.innerWidth < 640 ? '45px' : '50px'
         });
         
         const loader = document.createElement('div');
