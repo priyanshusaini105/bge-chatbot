@@ -66,12 +66,15 @@ class ChatApp {
         // Disable send button while processing
         this.elements.sendBtn.disabled = true;
         
-        // Simulate bot response (replace with actual API call)
-        setTimeout(() => {
-            this.generateBotResponse(message);
+        // Show loading indicator
+        const loaderId = this.showLoadingIndicator();
+        
+        // Generate bot response
+        this.generateBotResponse(message).finally(() => {
+            this.removeLoadingIndicator(loaderId);
             this.elements.sendBtn.disabled = false;
             this.elements.messageInput.focus();
-        }, 1000);
+        });
     }
 
     createNewChat() {
@@ -188,7 +191,21 @@ class ChatApp {
             wordBreak: 'break-word',
             margin: '0'
         });
-        messageText.textContent = message.text;
+        
+        // Render markdown for bot messages, plain text for user messages
+        if (isUser) {
+            messageText.textContent = message.text;
+        } else {
+            messageText.className = 'markdown-content';
+            try {
+                // Use marked.js to render markdown
+                messageText.innerHTML = marked.parse(message.text);
+            } catch (error) {
+                console.error('Markdown parsing error:', error);
+                messageText.textContent = message.text;
+            }
+        }
+        
         messageBubble.appendChild(messageText);
         
         const timestamp = document.createElement('span');
@@ -237,6 +254,74 @@ class ChatApp {
             // Fallback message if API fails
             const errorMessage = `I apologize, but I'm having trouble connecting to the server. Please make sure the backend is running at http://localhost:3000\n\nError: ${error.message}`;
             this.addMessage('bot', errorMessage);
+        }
+    }
+
+    showLoadingIndicator() {
+        // Hide welcome message on first message
+        if (this.messages.length === 1) {
+            this.elements.welcomeMessage.style.display = 'none';
+            this.elements.messages.style.display = 'flex';
+        }
+
+        const loaderId = 'loader_' + Date.now();
+        
+        const loaderDiv = document.createElement('div');
+        loaderDiv.setAttribute('data-loader-id', loaderId);
+        loaderDiv.setAttribute('data-sender', 'bot');
+        
+        Object.assign(loaderDiv.style, {
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '8px',
+            animation: 'slideIn 0.4s ease-out'
+        });
+        
+        const label = document.createElement('div');
+        Object.assign(label.style, {
+            fontSize: '11px',
+            fontWeight: '700',
+            color: '#999999',
+            textTransform: 'uppercase',
+            letterSpacing: '1.5px',
+            textAlign: 'left',
+            paddingLeft: '4px'
+        });
+        label.textContent = 'BGE Electrique';
+        
+        const loaderBubble = document.createElement('div');
+        Object.assign(loaderBubble.style, {
+            background: '#ffffff',
+            color: '#000000',
+            padding: '15px 20px',
+            borderRadius: '24px 24px 24px 4px',
+            border: '2px solid #e5e5e5',
+            maxWidth: '90%',
+            alignSelf: 'flex-start',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            minHeight: '50px'
+        });
+        
+        const loader = document.createElement('div');
+        loader.className = 'loader';
+        loader.textContent = 'Loading...';
+        
+        loaderBubble.appendChild(loader);
+        loaderDiv.appendChild(label);
+        loaderDiv.appendChild(loaderBubble);
+        
+        this.elements.messages.appendChild(loaderDiv);
+        this.scrollToBottom();
+        
+        return loaderId;
+    }
+
+    removeLoadingIndicator(loaderId) {
+        const loaderElement = this.elements.messages.querySelector(`[data-loader-id="${loaderId}"]`);
+        if (loaderElement) {
+            loaderElement.remove();
         }
     }
 
