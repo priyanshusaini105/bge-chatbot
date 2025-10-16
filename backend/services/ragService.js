@@ -1,25 +1,41 @@
 import pdf from 'pdf-parse';
-import { GoogleGenerativeAI } from '@google/generative-ai';
+import { GoogleGenerativeAIEmbeddings } from '@langchain/google-genai';
 import { QdrantClient } from '@qdrant/js-client-rest';
+import { QdrantVectorStore } from '@langchain/community/vectorstores/qdrant';
+import { Document } from '@langchain/core/documents';
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Lazy initialization - will be created when first needed
+let embeddings = null;
+let qdrantClient = null;
 
-// Initialize Qdrant Client
-const qdrantClient = new QdrantClient({
-    url: process.env.QDRANT_URL || 'http://localhost:6333',
-    apiKey: process.env.QDRANT_API_KEY
-});
+/**
+ * Initialize embeddings and Qdrant client
+ */
+function initializeClients() {
+    if (!embeddings) {
+        embeddings = new GoogleGenerativeAIEmbeddings({
+            apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
+            modelName: 'text-embedding-004'
+        });
+    }
+    
+    if (!qdrantClient) {
+        qdrantClient = new QdrantClient({
+            url: process.env.QDRANT_URL || 'http://localhost:6333',
+            apiKey: process.env.QDRANT_API_KEY
+        });
+    }
+}
 
 const COLLECTION_NAME = process.env.QDRANT_COLLECTION_NAME || 'bge_electrique_docs';
-const EMBEDDING_MODEL = 'text-embedding-004'; // Gemini embedding model
 
 /**
  * Initialize Qdrant collection
  */
 async function initializeCollection() {
     try {
-        // Check if collection exists
+        initializeClients();
+        
         const collections = await qdrantClient.getCollections();
         const collectionExists = collections.collections.some(
             col => col.name === COLLECTION_NAME
@@ -29,13 +45,13 @@ async function initializeCollection() {
             console.log(`Creating Qdrant collection: ${COLLECTION_NAME}`);
             await qdrantClient.createCollection(COLLECTION_NAME, {
                 vectors: {
-                    size: 768, // Gemini text-embedding-004 dimension
+                    size: 768,
                     distance: 'Cosine'
                 }
             });
-            console.log('Collection created successfully');
+            console.log('✅ Collection created successfully');
         } else {
-            console.log(`Collection ${COLLECTION_NAME} already exists`);
+            console.log(`✅ Collection ${COLLECTION_NAME} already exists`);
         }
     } catch (error) {
         console.error('Error initializing collection:', error);
@@ -44,109 +60,58 @@ async function initializeCollection() {
 }
 
 /**
- * Generate embeddings using Gemini
- */
-async function generateEmbedding(text) {
-    try {
-        const model = genAI.getGenerativeModel({ model: 'text-embedding-004' });
-        const result = await model.embedContent(text);
-        return result.embedding.values;
-    } catch (error) {
-        console.error('Error generating embedding:', error);
-        throw error;
-    }
-}
-
-/**
- * Process PDF and create embeddings in Qdrant
+ * Process PDF and create embeddings in Qdrant using LangChain
  */
 export async function processPDF(buffer, fileName) {
     try {
-        console.log('Parsing PDF...');
+        console.log('📄 Parsing PDF...');
         const data = await pdf(buffer);
         
         const pdfContent = data.text;
-        console.log(`PDF parsed. Total text length: ${pdfContent.length} characters`);
+        console.log(`✅ PDF parsed. Total text length: ${pdfContent.length} characters`);
 
         // Initialize collection
         await initializeCollection();
 
         // Split text into chunks
         const chunks = splitIntoChunks(pdfContent, 1000, 200);
-        console.log(`Created ${chunks.length} chunks`);
+        console.log(`✅ Created ${chunks.length} chunks`);
 
-        // Clear existing documents from this file (optional)
-        console.log('Clearing old documents from collection...');
-        try {
-            await qdrantClient.delete(COLLECTION_NAME, {
-                filter: {
-                    must: [{
-                        key: 'fileName',
-                        match: { value: fileName }
-                    }]
-                }
-            });
-        } catch (error) {
-            console.log('No existing documents to delete or error deleting:', error.message);
-        }
-
-        // Process chunks in batches
-        const batchSize = 10;
-        let processedChunks = 0;
-
-        console.log('Generating embeddings and uploading to Qdrant...');
-        
-        for (let i = 0; i < chunks.length; i += batchSize) {
-            const batch = chunks.slice(i, i + batchSize);
-            const points = [];
-
-            for (let j = 0; j < batch.length; j++) {
-                const chunkIndex = i + j;
-                const chunk = batch[j];
-
-                try {
-                    // Generate embedding
-                    const embedding = await generateEmbedding(chunk);
-
-                    // Create point for Qdrant
-                    points.push({
-                        id: `${Date.now()}_${chunkIndex}`,
-                        vector: embedding,
-                        payload: {
-                            text: chunk,
-                            fileName: fileName,
-                            chunkIndex: chunkIndex,
-                            uploadedAt: new Date().toISOString()
-                        }
-                    });
-
-                    processedChunks++;
-                    console.log(`Processed chunk ${processedChunks}/${chunks.length}`);
-                } catch (error) {
-                    console.error(`Error processing chunk ${chunkIndex}:`, error);
-                }
+        // Create LangChain documents
+        const documents = chunks.map((chunk, index) => new Document({
+            pageContent: chunk,
+            metadata: {
+                fileName: fileName,
+                chunkIndex: index,
+                uploadedAt: new Date().toISOString()
             }
+        }));
 
-            // Upload batch to Qdrant
-            if (points.length > 0) {
-                await qdrantClient.upsert(COLLECTION_NAME, {
-                    wait: true,
-                    points: points
-                });
-                console.log(`Uploaded batch ${Math.floor(i / batchSize) + 1}`);
+        console.log('🚀 Starting embedding generation with LangChain...');
+        console.log(`⏳ Processing ${documents.length} chunks (this may take 3-5 minutes)...`);
+
+        // Use LangChain's QdrantVectorStore to handle embeddings and upload
+        const vectorStore = await QdrantVectorStore.fromDocuments(
+            documents,
+            embeddings,
+            {
+                url: process.env.QDRANT_URL,
+                apiKey: process.env.QDRANT_API_KEY,
+                collectionName: COLLECTION_NAME,
             }
-        }
+        );
 
-        console.log(`Successfully processed and uploaded ${processedChunks} chunks to Qdrant`);
+        console.log(`✅ Successfully processed and uploaded ${documents.length} chunks to Qdrant`);
 
         return {
             success: true,
-            chunks: processedChunks,
+            chunks: documents.length,
             fileName: fileName
         };
 
     } catch (error) {
-        console.error('PDF processing error:', error);
+        console.error('❌ PDF processing error:', error);
+        console.error('Error details:', error.message);
         throw new Error(`Failed to process PDF: ${error.message}`);
     }
 }
@@ -173,40 +138,41 @@ function splitIntoChunks(text, chunkSize, overlap) {
 }
 
 /**
- * Get relevant context for a query using Qdrant semantic search
+ * Get relevant context for a query using LangChain and Qdrant
  */
 export async function getRelevantContext(query, topK = 5) {
     try {
-        console.log(`Searching for relevant context for query: "${query.substring(0, 50)}..."`);
+        initializeClients();
+        
+        console.log(`🔍 Searching for relevant context for query: "${query.substring(0, 50)}..."`);
 
-        // Generate embedding for the query
-        const queryEmbedding = await generateEmbedding(query);
-
-        // Search in Qdrant
-        const searchResult = await qdrantClient.search(COLLECTION_NAME, {
-            vector: queryEmbedding,
-            limit: topK,
-            with_payload: true,
-            score_threshold: 0.5 // Only return results with similarity > 0.5
+        // Initialize vector store for similarity search
+        const vectorStore = new QdrantVectorStore(embeddings, {
+            url: process.env.QDRANT_URL,
+            apiKey: process.env.QDRANT_API_KEY,
+            collectionName: COLLECTION_NAME,
         });
 
-        if (!searchResult || searchResult.length === 0) {
-            console.log('No relevant chunks found in Qdrant');
+        // Perform similarity search
+        const results = await vectorStore.similaritySearch(query, topK);
+
+        if (!results || results.length === 0) {
+            console.log('⚠️ No relevant chunks found in Qdrant');
             return null;
         }
 
-        console.log(`Found ${searchResult.length} relevant chunks with scores:`, 
-            searchResult.map(r => r.score.toFixed(3)).join(', '));
+        console.log(`✅ Found ${results.length} relevant chunks`);
 
         // Extract text from results
-        const context = searchResult
-            .map(result => result.payload.text)
+        const context = results
+            .map(doc => doc.pageContent)
             .join('\n\n---\n\n');
 
         return context;
 
     } catch (error) {
-        console.error('Context retrieval error:', error);
+        console.error('❌ Context retrieval error:', error);
+        console.error('Error details:', error.message);
         return null;
     }
 }
@@ -216,6 +182,8 @@ export async function getRelevantContext(query, topK = 5) {
  */
 export async function getVectorStoreStats() {
     try {
+        initializeClients();
+        
         const collectionInfo = await qdrantClient.getCollection(COLLECTION_NAME);
         
         return {

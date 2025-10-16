@@ -3,14 +3,24 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import chatRoutes from './routes/chat.js';
-import pdfRoutes from './routes/pdf.js';
-
-// Load environment variables
-dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// Load environment variables FIRST before importing routes
+dotenv.config({ path: join(__dirname, '.env') });
+
+// Verify API key is loaded
+const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+if (!apiKey) {
+    console.warn('⚠️  WARNING: No Gemini API key found in environment variables');
+} else {
+    console.log(`✅ Gemini API key loaded: ${apiKey.substring(0, 10)}...`);
+}
+
+// Import routes AFTER environment variables are loaded
+import chatRoutes from './routes/chat.js';
+import pdfRoutes from './routes/pdf.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;

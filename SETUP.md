@@ -199,7 +199,7 @@ Response:
 ## 🎯 Features
 
 ### Backend Features
-- ✅ Gemini AI integration (gemini-1.5-flash model)
+- ✅ Gemini AI integration (gemini-2.0-flash-lite model)
 - ✅ PDF parsing and processing (supports large PDFs)
 - ✅ RAG (Retrieval-Augmented Generation)
 - ✅ Semantic search for relevant context

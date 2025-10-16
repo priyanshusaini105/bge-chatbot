@@ -4,8 +4,20 @@ import { getRelevantContext } from '../services/ragService.js';
 
 const router = express.Router();
 
-// Initialize Gemini AI
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+// Lazy initialization of Gemini AI
+let genAI = null;
+
+function initializeGenAI() {
+    if (!genAI) {
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
+        if (!apiKey) {
+            throw new Error('No API key found for Gemini AI. Please set GEMINI_API_KEY or GOOGLE_API_KEY in your .env file');
+        }
+        genAI = new GoogleGenerativeAI(apiKey);
+        console.log('✅ Gemini AI initialized in chat route');
+    }
+    return genAI;
+}
 
 // Chat endpoint
 router.post('/message', async (req, res) => {
@@ -19,8 +31,9 @@ router.post('/message', async (req, res) => {
         // Get relevant context from RAG
         const context = await getRelevantContext(message);
 
-        // Initialize Gemini model
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        // Initialize Gemini model (using gemini-2.0-flash-lite - smallest and most cost effective)
+        const ai = initializeGenAI();
+        const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
         // Create prompt with context
         const prompt = `You are BGE ELECTRIQUE's intelligent assistant, an expert in electrical systems, installations, and services.
@@ -73,7 +86,8 @@ router.post('/stream', async (req, res) => {
         res.setHeader('Connection', 'keep-alive');
 
         const context = await getRelevantContext(message);
-        const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+        const ai = initializeGenAI();
+        const model = ai.getGenerativeModel({ model: 'gemini-2.0-flash-lite' });
 
         const prompt = `You are BGE ELECTRIQUE's intelligent assistant.
 ${context ? `Context: ${context}\n\n` : ''}

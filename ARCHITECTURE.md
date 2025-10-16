@@ -45,8 +45,8 @@
 │ │   Chat      │ │    │ │  Vector Search  │  │
 │ │   Model     │ │    │ │  (Similarity)   │  │
 │ │             │ │    │ │                 │  │
-│ │ gemini-1.5- │ │    │ │  Top K: 5       │  │
-│ │   flash     │ │    │ │  Threshold: 0.5 │  │
+│ │ gemini-2.0-flash-lite │ │    │ │  Top K: 5       │  │
+│ │        │ │    │ │  Threshold: 0.5 │  │
 │ └─────────────┘ │    │ └─────────────────┘  │
 └─────────────────┘    └──────────────────────┘
 ```
@@ -262,7 +262,7 @@
   - Output: 768-dimensional vector
   - Use: Convert text to searchable vectors
   
-- **Chat Model:** `gemini-1.5-flash`
+- **Chat Model:** `gemini-2.0-flash-lite`
   - Input: Prompt + context + question
   - Output: Natural language response
   - Use: Generate answers using PDF context
