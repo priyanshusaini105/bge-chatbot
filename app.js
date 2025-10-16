@@ -70,8 +70,7 @@ class ChatApp {
         const loaderId = this.showLoadingIndicator();
         
         // Generate bot response
-        this.generateBotResponse(message).finally(() => {
-            this.removeLoadingIndicator(loaderId);
+        this.generateBotResponse(message, loaderId).finally(() => {
             this.elements.sendBtn.disabled = false;
             this.elements.messageInput.focus();
         });
@@ -125,13 +124,13 @@ class ChatApp {
         this.messages.push(message);
         
         // Render message
-        this.renderMessage(message);
+        const messageElement = this.renderMessage(message);
         
         // Save to storage
         this.saveChat();
         
-        // Scroll to bottom
-        this.scrollToBottom();
+        // Scroll to show the start of the new message
+        this.scrollToMessage(messageElement);
     }
 
     renderMessage(message) {
@@ -198,8 +197,27 @@ class ChatApp {
         } else {
             messageText.className = 'markdown-content';
             try {
+                // Clean up the text: remove excessive empty lines
+                const cleanedText = message.text
+                    .split('\n')
+                    .map(line => line.trim())  // Trim whitespace from each line
+                    .filter((line, index, arr) => {
+                        // Keep non-empty lines
+                        if (line) return true;
+                        // Remove all empty lines - we don't need them for spacing
+                        // CSS will handle the spacing between elements
+                        return false;
+                    })
+                    .join('\n');
+                
                 // Use marked.js to render markdown
-                messageText.innerHTML = marked.parse(message.text);
+                let html = marked.parse(cleanedText);
+                
+                // Remove empty paragraphs from the rendered HTML
+                html = html.replace(/<p>\s*<\/p>/g, '');
+                html = html.replace(/<p><\/p>/g, '');
+                
+                messageText.innerHTML = html;
             } catch (error) {
                 console.error('Markdown parsing error:', error);
                 messageText.textContent = message.text;
@@ -225,9 +243,11 @@ class ChatApp {
         messageDiv.appendChild(timestamp);
         
         this.elements.messages.appendChild(messageDiv);
+        
+        return messageDiv;
     }
 
-    async generateBotResponse(userMessage) {
+    async generateBotResponse(userMessage, loaderId) {
         try {
             // Call the Latenode webhook API
             const response = await fetch('https://webhook.latenode.com/1150/prod/bge/codebook/chat', {
@@ -246,6 +266,7 @@ class ChatApp {
             }
 
             const data = await response.json();
+            this.removeLoadingIndicator(loaderId);
             this.addMessage('bot', data.response);
 
         } catch (error) {
@@ -253,6 +274,7 @@ class ChatApp {
             
             // Fallback message if API fails
             const errorMessage = `I apologize, but I'm having trouble connecting to the server. Please try again later.\n\nError: ${error.message}`;
+            this.removeLoadingIndicator(loaderId);
             this.addMessage('bot', errorMessage);
         }
     }
@@ -313,7 +335,7 @@ class ChatApp {
         loaderDiv.appendChild(loaderBubble);
         
         this.elements.messages.appendChild(loaderDiv);
-        this.scrollToBottom();
+        this.scrollToMessage(loaderDiv);
         
         return loaderId;
     }
@@ -342,6 +364,10 @@ class ChatApp {
                     this.messages.forEach(message => {
                         this.renderMessage(message);
                     });
+                    // Scroll to bottom after loading all messages
+                    setTimeout(() => {
+                        this.elements.messagesArea.scrollTop = this.elements.messagesArea.scrollHeight;
+                    }, 100);
                 }
             } catch (error) {
                 console.error('Error loading chat:', error);
@@ -367,8 +393,11 @@ class ChatApp {
         }
     }
 
-    scrollToBottom() {
-        this.elements.messagesArea.scrollTop = this.elements.messagesArea.scrollHeight;
+    scrollToMessage(messageElement) {
+        if (messageElement) {
+            // Scroll to show the top of the new message with some padding
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     formatTime(timestamp) {
