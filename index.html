@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BGE ELECTRIQUE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #dddddd;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #bbbbbb;
+        }
+
+        /* Custom Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .animate-slide-in {
+            animation: slideIn 0.4s ease-out;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 overflow-hidden">
+    <div id="appContainer" class="flex flex-col h-screen w-screen">
+        <!-- Header -->
+        <div id="chatHeader" class="px-8 py-5 bg-black flex items-center justify-between">
+            <div id="headerTitle" class="text-white text-lg font-bold tracking-[0.25em]">BGE ELECTRIQUE</div>
+            <div class="flex items-center gap-3">
+                <a href="upload.html" class="bg-gray-800 text-white border-2 border-gray-800 px-4 py-2.5 text-xs font-bold cursor-pointer transition-all duration-300 rounded-full tracking-wider hover:bg-gray-700 hover:border-gray-700 hover:-translate-y-0.5 active:translate-y-0">
+                    UPLOAD PDF
+                </a>
+                <button id="newChatBtn" class="bg-white text-black border-2 border-white px-5 py-2.5 text-xs font-bold cursor-pointer transition-all duration-300 rounded-full tracking-wider hover:bg-black hover:text-white hover:-translate-y-0.5 active:translate-y-0">
+                    NEW CHAT
+                </button>
+            </div>
+        </div>
+
+        <!-- Messages Area -->
+        <div id="messagesArea" class="flex-1 overflow-y-auto px-8 py-12 md:py-14 bg-gray-50">
+            <div id="welcomeMessage" class="flex flex-col items-center justify-center h-full text-center">
+                <h2 id="welcomeTitle" class="text-3xl md:text-4xl font-bold text-black mb-3 tracking-[0.15em]">BGE ELECTRIQUE</h2>
+                <p id="welcomeSubtitle" class="text-sm md:text-base text-gray-600 max-w-md leading-relaxed">Start a conversation by typing a message below</p>
+            </div>
+            <div id="messages" class="flex flex-col gap-8 max-w-4xl mx-auto"></div>
+        </div>
+
+        <!-- Input Area -->
+        <div id="inputArea" class="px-8 pt-6 pb-8 bg-gray-50">
+            <form id="chatForm" class="max-w-4xl mx-auto flex gap-3 bg-white p-2 rounded-[30px] border-2 border-gray-200 transition-colors duration-300 focus-within:border-black">
+                <input 
+                    type="text" 
+                    id="messageInput" 
+                    placeholder="Type your message..." 
+                    autocomplete="off"
+                    class="flex-1 px-5 py-3.5 border-0 text-base outline-none bg-transparent text-black placeholder:text-gray-400"
+                >
+                <button type="submit" id="sendBtn" class="px-7 py-3.5 bg-black text-white border-0 text-xs font-bold cursor-pointer transition-all duration-300 rounded-full tracking-wider hover:bg-gray-800 hover:scale-105 active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:bg-black">
+                    SEND
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
