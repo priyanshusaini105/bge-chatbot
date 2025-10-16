@@ -224,13 +224,29 @@ npm start
 
 ## 📚 API Reference
 
-See `backend/README.md` for detailed API documentation.
+### Complete Documentation
+- **[API Documentation](./API_DOCUMENTATION.md)** - Full API reference with examples
+- **[API Quick Reference](./API_QUICK_REFERENCE.md)** - Quick command reference
+- **[OpenAPI Specification](./openapi.yaml)** - OpenAPI/Swagger spec
+- **[Postman Collection](./BGE_ELECTRIQUE_API.postman_collection.json)** - Import into Postman
 
-**Quick Reference:**
+### Quick Reference
+
+**Endpoints:**
 - Health: `GET /api/health`
-- Upload PDF: `POST /api/pdf/upload`
 - Chat: `POST /api/chat/message`
+- Stream: `POST /api/chat/stream`
+- Upload PDF: `POST /api/pdf/upload`
 - Stats: `GET /api/pdf/stats`
+
+**Example Request:**
+```bash
+curl -X POST http://localhost:3000/api/chat/message \
+  -H "Content-Type: application/json" \
+  -d '{"message":"What are safety requirements?","chatId":"chat_123"}'
+```
+
+See full documentation in [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
 
 ## 🚀 Production Deployment
 

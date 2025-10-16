@@ -1,0 +1,316 @@
+openapi: 3.0.0
+info:
+  title: BGE ELECTRIQUE Chatbot API
+  description: |
+    RAG-powered conversational AI API specialized in electrical systems, installations, and services.
+    
+    Features:
+    - Context-aware responses using Retrieval Augmented Generation (RAG)
+    - PDF document processing and knowledge base management
+    - Real-time and streaming chat capabilities
+    - Vector-based semantic search with Qdrant
+    - Markdown-formatted responses
+  version: 1.0.0
+  contact:
+    name: BGE ELECTRIQUE Support
+    email: support@bge-electrique.com
+    url: https://github.com/priyanshusaini105/bge-chatbot
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.bge-electrique.com
+    description: Production server (when deployed)
+
+tags:
+  - name: Health
+    description: API health and status endpoints
+  - name: Chat
+    description: Chatbot conversation endpoints
+  - name: Documents
+    description: PDF document management endpoints
+
+paths:
+  /api/health:
+    get:
+      tags:
+        - Health
+      summary: Health check
+      description: Check if the API server is running and healthy
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  message:
+                    type: string
+                    example: BGE ELECTRIQUE Chatbot API is running
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2025-10-16T14:27:05.830Z'
+
+  /api/chat/message:
+    post:
+      tags:
+        - Chat
+      summary: Send chat message
+      description: |
+        Send a message to the chatbot and receive an AI-generated response.
+        The response includes context retrieved from the knowledge base using RAG.
+      operationId: sendChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: User's message or question
+                  maxLength: 5000
+                  example: What are the safety requirements for electrical work?
+                chatId:
+                  type: string
+                  description: Unique chat session identifier
+                  example: chat_1234567890
+      responses:
+        '200':
+          description: Successfully generated response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  response:
+                    type: string
+                    description: AI-generated response (markdown formatted)
+                    example: |
+                      Here are the safety requirements for electrical work:
+                      
+                      * **Disconnection:** Repairs on live equipment are prohibited...
+                  chatId:
+                    type: string
+                    example: chat_1234567890
+                  timestamp:
+                    type: string
+                    format: date-time
+                    example: '2025-10-16T14:30:15.123Z'
+                  hasContext:
+                    type: boolean
+                    description: Whether relevant context was found in knowledge base
+                    example: true
+        '400':
+          description: Bad request - invalid or missing parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Message is required
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Failed to generate response
+                message: API key not valid
+
+  /api/chat/stream:
+    post:
+      tags:
+        - Chat
+      summary: Stream chat response
+      description: |
+        Send a message and receive a streaming response using Server-Sent Events.
+        Useful for real-time display of AI-generated content.
+      operationId: streamChatMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - message
+              properties:
+                message:
+                  type: string
+                  description: User's message or question
+                  maxLength: 5000
+                  example: Explain electrical safety in detail
+      responses:
+        '200':
+          description: Stream started successfully
+          content:
+            text/event-stream:
+              schema:
+                type: string
+                description: Server-Sent Events stream
+                example: |
+                  data: {"text":"Electrical"}
+                  
+                  data: {"text":" safety"}
+                  
+                  data: [DONE]
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Streaming failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/pdf/upload:
+    post:
+      tags:
+        - Documents
+      summary: Upload PDF document
+      description: |
+        Upload a PDF file to the knowledge base. The file will be:
+        1. Text extracted
+        2. Chunked into segments
+        3. Embedded into 768-dimensional vectors
+        4. Stored in Qdrant for semantic search
+        
+        Processing time: 3-5 minutes for large PDFs
+      operationId: uploadPDF
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - pdf
+              properties:
+                pdf:
+                  type: string
+                  format: binary
+                  description: PDF file to upload (max 50MB)
+      responses:
+        '200':
+          description: PDF processed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: PDF processed successfully
+                  fileName:
+                    type: string
+                    example: document.pdf
+                  chunks:
+                    type: integer
+                    description: Number of text chunks created
+                    example: 150
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          description: Bad request - no file or invalid file type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: No PDF file uploaded
+        '500':
+          description: Processing failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/pdf/stats:
+    get:
+      tags:
+        - Documents
+      summary: Get database statistics
+      description: Retrieve statistics about the Qdrant vector database
+      operationId: getPDFStats
+      responses:
+        '200':
+          description: Stats retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  totalChunks:
+                    type: integer
+                    description: Total number of document chunks stored
+                    example: 2719
+                  vectorSize:
+                    type: integer
+                    description: Dimension of embedding vectors
+                    example: 768
+                  hasData:
+                    type: boolean
+                    description: Whether any data exists in collection
+                    example: true
+                  collectionName:
+                    type: string
+                    description: Name of the Qdrant collection
+                    example: bge_electrique_docs
+                  error:
+                    type: string
+                    description: Error message if any
+        '500':
+          description: Failed to retrieve stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error description
+        message:
+          type: string
+          description: Detailed error message
+        stack:
+          type: string
+          description: Stack trace (development only)
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: API key for authentication (production only)
+
+# Security (for future implementation)
+# security:
+#   - ApiKeyAuth: []
+
+externalDocs:
+  description: Full API Documentation
+  url: https://github.com/priyanshusaini105/bge-chatbot/blob/main/API_DOCUMENTATION.md
