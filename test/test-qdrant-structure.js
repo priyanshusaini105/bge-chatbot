@@ -6,7 +6,7 @@ import { QdrantClient } from '@qdrant/js-client-rest';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: '../backend/.env' });
 
 const QDRANT_URL = process.env.QDRANT_URL || 'http://localhost:6333';
 const QDRANT_API_KEY = process.env.QDRANT_API_KEY;
