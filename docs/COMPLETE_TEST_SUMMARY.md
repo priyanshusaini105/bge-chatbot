@@ -177,9 +177,9 @@ All components of the BGE ELECTRIQUE RAG-powered chatbot system have been tested
 ## 📁 Test Artifacts
 
 ### Test Scripts Created
-1. `test-all-apis.js` - Comprehensive backend API tests
-2. `test-chat-only.js` - Focused chatbot functionality tests
-3. `test-gemini-models.js` - Gemini model compatibility tests
+1. `test/test-all-apis.js` - Comprehensive backend API tests
+2. `test/test-chat-only.js` - Focused chatbot functionality tests
+3. `test/test-gemini-models.js` - Gemini model compatibility tests
 
 ### Test Reports
 1. `API_TEST_REPORT.md` - Backend API test results

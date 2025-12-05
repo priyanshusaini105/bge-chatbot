@@ -94,13 +94,13 @@ Complete documentation for the BGE ELECTRIQUE Chatbot project.
 
 ## 📁 Test Files
 
-Located in project root:
-- `test-all-apis.js` - Comprehensive backend API tests
-- `test-chat-only.js` - Focused chatbot functionality tests
-- `test-gemini.js` - Gemini API verification
-- `test-gemini-models.js` - Model compatibility tests
-- `test-qdrant.js` - Qdrant connection tests
-- `test-setup.bat` - Windows test runner
+Located in `test/` folder:
+- `test/test-all-apis.js` - Comprehensive backend API tests
+- `test/test-chat-only.js` - Focused chatbot functionality tests
+- `test/test-gemini.js` - Gemini API verification
+- `test/test-gemini-models.js` - Model compatibility tests
+- `test/test-qdrant.js` - Qdrant connection tests
+- `test-setup.bat` - Windows test runner (in project root)
 
 ---
 

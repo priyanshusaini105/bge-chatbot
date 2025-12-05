@@ -89,7 +89,7 @@ GET http://localhost:3000/api/health
 
 ### Qdrant Connection Test
 ```bash
-node test-qdrant.js
+node test/test-qdrant.js
 ✅ Connected to Qdrant
 ✅ Collection exists: bge_electrique_docs
 ✅ Points count: 0
@@ -97,7 +97,7 @@ node test-qdrant.js
 
 ### Gemini Embeddings Test
 ```bash
-node test-gemini.js
+node test/test-gemini.js
 ✅ Embeddings API working
 ✅ Vector length: 768
 ❌ Chat API: Model name issue (updated but not retested)
@@ -238,8 +238,8 @@ If Gemini embeddings keep failing, consider:
 ## 📝 Files Created This Session
 
 1. `upload-pdf.js` - PDF upload script
-2. `test-qdrant.js` - Qdrant connection test
-3. `test-gemini.js` - Gemini API test
+2. `test/test-qdrant.js` - Qdrant connection test
+3. `test/test-gemini.js` - Gemini API test
 4. `TEST_RESULTS.md` - Comprehensive test results
 5. `UPLOAD_ISSUE_REPORT.md` - This file
 
