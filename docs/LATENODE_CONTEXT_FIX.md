@@ -91,7 +91,7 @@ QDRANT_COLLECTION_NAME=bge_electrique_docs
 1. ✅ `latenode-workflows/chat-message.js` - Full fix applied
 2. ✅ `latenode-workflows/chat-stream.js` - Full fix applied
 3. ✅ `.env` - Added Qdrant cloud credentials
-4. ✅ `test-qdrant-structure.js` - Created diagnostic tool
+4. ✅ `test/test-qdrant-structure.js` - Created diagnostic tool
 
 ## How to Verify the Fix
 
@@ -133,7 +133,7 @@ QDRANT_COLLECTION_NAME=bge_electrique_docs
 
 ## Quick Test Command
 ```bash
-node test-qdrant-structure.js
+node test/test-qdrant-structure.js
 ```
 
 This will verify:

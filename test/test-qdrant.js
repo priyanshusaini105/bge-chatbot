@@ -1,7 +1,7 @@
 import { QdrantClient } from '@qdrant/js-client-rest';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: './backend/.env' });
+dotenv.config({ path: '../backend/.env' });
 
 async function testQdrant() {
     try {
