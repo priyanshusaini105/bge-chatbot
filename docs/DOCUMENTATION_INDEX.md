@@ -8,7 +8,7 @@ Complete documentation for the BGE ELECTRIQUE Chatbot project.
 
 | Document | Description | For |
 |----------|-------------|-----|
-| **[README.md](./README.md)** | Main project overview and quick start | Everyone |
+| **[README.md](../README.md)** | Main project overview and quick start | Everyone |
 | **[START_HERE.md](./START_HERE.md)** | Step-by-step setup guide | New users |
 | **[QUICK_START_CHECKLIST.md](./QUICK_START_CHECKLIST.md)** | Setup checklist | New users |
 | **[SETUP.md](./SETUP.md)** | Detailed installation instructions | Developers |
@@ -21,8 +21,8 @@ Complete documentation for the BGE ELECTRIQUE Chatbot project.
 |----------|-------------|-----|
 | **[API_DOCUMENTATION.md](./API_DOCUMENTATION.md)** | Complete API reference with examples | Developers |
 | **[API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md)** | Quick command reference | Developers |
-| **[openapi.yaml](./openapi.yaml)** | OpenAPI/Swagger specification | API tools |
-| **[BGE_ELECTRIQUE_API.postman_collection.json](./BGE_ELECTRIQUE_API.postman_collection.json)** | Postman collection | Testers |
+| **[openapi.yaml](../openapi.yaml)** | OpenAPI/Swagger specification | API tools |
+| **[BGE_ELECTRIQUE_API.postman_collection.json](../BGE_ELECTRIQUE_API.postman_collection.json)** | Postman collection | Testers |
 
 ---
 
@@ -67,12 +67,12 @@ Complete documentation for the BGE ELECTRIQUE Chatbot project.
 ## 🔍 Quick Links by Role
 
 ### For End Users
-1. Start with [README.md](./README.md)
+1. Start with [README.md](../README.md)
 2. Follow [VISUAL_GUIDE.md](./VISUAL_GUIDE.md)
 3. Check [UPLOAD_ISSUE_REPORT.md](./UPLOAD_ISSUE_REPORT.md) if issues occur
 
 ### For Developers
-1. Read [README.md](./README.md)
+1. Read [README.md](../README.md)
 2. Follow [SETUP.md](./SETUP.md)
 3. Review [ARCHITECTURE.md](./ARCHITECTURE.md)
 4. Check [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
@@ -80,9 +80,9 @@ Complete documentation for the BGE ELECTRIQUE Chatbot project.
 
 ### For API Integrators
 1. Start with [API_QUICK_REFERENCE.md](./API_QUICK_REFERENCE.md)
-2. Import [BGE_ELECTRIQUE_API.postman_collection.json](./BGE_ELECTRIQUE_API.postman_collection.json)
+2. Import [BGE_ELECTRIQUE_API.postman_collection.json](../BGE_ELECTRIQUE_API.postman_collection.json)
 3. Reference [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
-4. Use [openapi.yaml](./openapi.yaml) for code generation
+4. Use [openapi.yaml](../openapi.yaml) for code generation
 
 ### For QA/Testers
 1. Review [TEST_RESULTS.md](./TEST_RESULTS.md)
