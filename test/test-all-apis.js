@@ -127,9 +127,9 @@ async function testPDFUploadEndpoint() {
     try {
         // Try to find a test PDF
         const possiblePaths = [
-            join(__dirname, 'test', 'data', 'codebook.pdf'),
-            join(__dirname, 'codebook.pdf'),
-            join(__dirname, 'backend', 'test', 'data', 'codebook.pdf')
+            join(__dirname, '..', 'test', 'data', 'codebook.pdf'),
+            join(__dirname, '..', 'codebook.pdf'),
+            join(__dirname, '..', 'backend', 'test', 'data', 'codebook.pdf')
         ];
         
         let pdfPath = null;

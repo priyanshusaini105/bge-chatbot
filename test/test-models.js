@@ -1,7 +1,7 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import dotenv from 'dotenv';
 
-dotenv.config({ path: './backend/.env' });
+dotenv.config({ path: '../backend/.env' });
 
 async function testGeminiModels() {
     console.log('🔑 Testing Gemini API Key...\n');

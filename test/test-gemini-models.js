@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // Load environment variables from backend/.env
-dotenv.config({ path: join(__dirname, 'backend', '.env') });
+dotenv.config({ path: join(__dirname, '..', 'backend', '.env') });
 
 const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY;
 const genAI = new GoogleGenerativeAI(apiKey);
