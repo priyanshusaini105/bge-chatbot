@@ -59,7 +59,7 @@ QDRANT_URL=https://your-cluster-url.qdrant.io:6333
 
 **Get API Keys:**
 - Gemini: https://makersuite.google.com/app/apikey
-- Qdrant: https://cloud.qdrant.io (see `QDRANT_SETUP.md`)
+- Qdrant: https://cloud.qdrant.io (see `docs/QDRANT_SETUP.md`)
 
 Start the backend:
 ```bash
@@ -92,7 +92,7 @@ Open `http://localhost:8000` in your browser.
 - **Qdrant Account** - [Get it here](https://cloud.qdrant.io) (Free tier available)
 - **Modern web browser** (Chrome, Firefox, Safari, Edge)
 
-**📘 See `QDRANT_SETUP.md` for detailed Qdrant setup instructions**
+**📘 See `docs/QDRANT_SETUP.md` for detailed Qdrant setup instructions**
 
 ## 📖 Usage Guide
 
@@ -217,7 +217,7 @@ npm start
 | `Generic bot responses` | Upload PDF first via "UPLOAD PDF" button |
 
 ### Getting Help
-1. Check `SETUP.md` for detailed instructions
+1. Check `docs/SETUP.md` for detailed instructions
 2. Check backend console logs for errors
 3. Check browser DevTools console
 4. Verify API endpoints with curl/Postman
@@ -225,8 +225,8 @@ npm start
 ## 📚 API Reference
 
 ### Complete Documentation
-- **[API Documentation](./API_DOCUMENTATION.md)** - Full API reference with examples
-- **[API Quick Reference](./API_QUICK_REFERENCE.md)** - Quick command reference
+- **[API Documentation](./docs/API_DOCUMENTATION.md)** - Full API reference with examples
+- **[API Quick Reference](./docs/API_QUICK_REFERENCE.md)** - Quick command reference
 - **[OpenAPI Specification](./openapi.yaml)** - OpenAPI/Swagger spec
 - **[Postman Collection](./BGE_ELECTRIQUE_API.postman_collection.json)** - Import into Postman
 
@@ -246,7 +246,7 @@ curl -X POST http://localhost:3000/api/chat/message \
   -d '{"message":"What are safety requirements?","chatId":"chat_123"}'
 ```
 
-See full documentation in [API_DOCUMENTATION.md](./API_DOCUMENTATION.md)
+See full documentation in [API_DOCUMENTATION.md](./docs/API_DOCUMENTATION.md)
 
 ## 🚀 Production Deployment
 
